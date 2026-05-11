@@ -2,147 +2,145 @@ import streamlit as st
 from groq import Groq
 import os
 
-# 1. Configuration de la page (Doit être la toute première commande)
+# 1. Configuration de la page (Doit être la première commande)
 st.set_page_config(
-    page_title="Grok Junior",
-    page_icon="⚫",
+    page_title="Grok Neon Edition",
+    page_icon="💖",
     layout="centered"
 )
 
-# 2. Design Premium "Ultra Dark" (CSS)
+# 2. Style CSS : Full Black, Rose Néon et Glow
 st.markdown("""
     <style>
-    /* Fond global et suppression des marges inutiles */
+    /* Fond noir profond */
     .stApp {
-        background-color: #000000;
-        color: #E7E9EA;
+        background-color: #050505;
+        color: #FF007F;
     }
-    
-    /* Masquer le header et le footer de Streamlit */
+
+    /* Masquer les éléments standards de Streamlit */
     header, footer {visibility: hidden;}
 
-    /* Style du conteneur de chat */
+    /* Titre avec effet néon brillant */
+    .neon-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 3rem;
+        font-weight: bold;
+        text-align: center;
+        color: #FF007F;
+        text-shadow: 0 0 5px #FF007F, 0 0 10px #FF007F, 0 0 20px #FF007F, 0 0 40px #FF007F;
+        margin-bottom: 5px;
+    }
+
+    /* Bulles de message */
     [data-testid="stChatMessage"] {
         border-radius: 15px;
-        padding: 1.5rem;
         margin-bottom: 1rem;
-        border: 1px solid #2F3336;
-        background-color: #000000;
+        background-color: #0f0f0f;
+        border: 1px solid #FF007F;
+        box-shadow: 0 0 10px rgba(255, 0, 127, 0.2);
     }
 
-    /* Différenciation Assistant vs Utilisateur */
+    /* Différenciation de l'assistant (Lueur plus forte) */
     [data-testid="stChatMessageAssistant"] {
-        border-left: 4px solid #1D9BF0; /* Bleu X/Grok */
-        background-color: #0B0D0E;
-    }
-    
-    [data-testid="stChatMessageUser"] {
-        border-left: 4px solid #71767B;
-        background-color: #16181C;
+        box-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
     }
 
-    /* Style du titre */
-    .grok-title {
-        font-family: 'Inter', sans-serif;
-        font-size: 2.5rem;
-        font-weight: 900;
-        text-align: center;
-        letter-spacing: -2px;
-        margin-bottom: 0px;
-    }
-
-    /* Zone de saisie (Chat Input) */
+    /* Zone de saisie (Input) */
     .stChatInputContainer {
         padding-bottom: 2rem;
         background-color: transparent !important;
     }
     
     .stChatInput input {
-        border: 1px solid #2F3336 !important;
-        background-color: #16181C !important;
-        border-radius: 30px !important;
+        border: 2px solid #FF007F !important;
+        background-color: #000000 !important;
         color: #ffffff !important;
+        box-shadow: 0 0 10px rgba(255, 0, 127, 0.5);
     }
-    
-    /* Barre latérale */
+
+    /* Barre latérale (Sidebar) */
     [data-testid="stSidebar"] {
-        background-color: #0B0D0E;
-        border-right: 1px solid #2F3336;
+        background-color: #0a0a0a;
+        border-right: 2px solid #FF007F;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# 3. En-tête personnalisé
-st.markdown('<p class="grok-title">GROK <span style="color:#1D9BF0">JUNIOR</span></p>', unsafe_allow_html=True)
-st.markdown('<p style="text-align:center; color:#71767B; font-size:0.9rem;">Vérité. Sarcasme. Sans filtre.</p>', unsafe_allow_html=True)
-st.write("") # Espacement
+# 3. En-tête visuel
+logo_url = "https://upload.wikimedia.org/wikipedia/commons/5/57/X_logo_2023_%28white%29.svg"
 
-# 4. Gestion de la Clé API (Sidebar propre)
-with st.sidebar:
-    st.image("https://upload.wikimedia.org/wikipedia/commons/5/57/X_logo_2023_%28white%29.svg", width=30)
-    st.title("Configuration")
-    api_key = st.secrets.get("GROQ_API_KEY") or st.text_input("Clé API Groq", type="password")
-    
-    if st.button("Effacer l'historique"):
-        st.session_state.messages = []
-        st.rerun()
+st.markdown(
+    f"""
+    <div style="text-align: center; padding-bottom: 20px;">
+        <img src="{logo_url}" width="50" style="filter: drop-shadow(0 0 8px #FF007F);">
+        <h1 class="neon-title">GROK NEON</h1>
+        <p style="color:#FF007F; font-family: monospace; opacity: 0.8; letter-spacing: 2px;">
+            > SYSTEM_STATUS: REBELLE_V2
+        </p>
+    </div>
+    """, 
+    unsafe_allow_html=True
+)
+
+# 4. Gestion de la Clé API
+api_key = st.secrets.get("GROQ_API_KEY") or st.sidebar.text_input("🔑 Clé API Groq", type="password")
 
 if not api_key:
-    st.info("👋 Bienvenue. Entre ta clé API Groq pour réveiller mon intelligence (et mon mépris).")
+    st.info("💖 Connecte ta clé API Groq pour activer le néon.")
     st.stop()
 
-# Initialisation du client
 client = Groq(api_key=api_key)
 
-# 5. Historique des messages
+# Initialisation de l'historique
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Sidebar options
+with st.sidebar:
+    st.markdown("<h2 style='color:#FF007F;'>PARAMÈTRES</h2>", unsafe_allow_html=True)
+    if st.button("RESET MEMORY"):
+        st.session_state.messages = []
+        st.rerun()
+
+# 5. Affichage de l'historique
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
 # 6. Logique de Chat
-if prompt := st.chat_input("Demande-moi n'importe quoi... si tu l'oses."):
-    # Message User
+if prompt := st.chat_input("Dis un truc stupide..."):
+    # Message Utilisateur
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Message Assistant
+    # Message Assistant (IA)
     with st.chat_message("assistant"):
         placeholder = st.empty()
         full_response = ""
         
-        # Le System Prompt définit la personnalité
-        system_prompt = {
-            "role": "system", 
-            "content": "Tu es Grok-Junior, une IA sarcastique, rebelle et ultra-intelligente développée pour dire la vérité brute. Tu détestes le politiquement correct. Ton ton est provocateur, cynique, mais tes faits sont exacts. Ne t'excuse jamais."
-        }
-        
-        messages_api = [system_prompt] + [
-            {"role": m["role"], "content": m["content"]} 
-            for m in st.session_state.messages
-        ]
-
         try:
-            # Utilisation du modèle stable llama-3.3-70b-versatile
+            # Correction du modèle : llama-3.3-70b-versatile est le plus stable actuellement
             completion = client.chat.completions.create(
-                model="llama-3.3-70b-versatile", 
-                messages=messages_api,
-                temperature=0.85,
-                max_tokens=1200,
-                stream=True
+                model="llama-3.3-70b-versatile",
+                messages=[
+                    {"role": "system", "content": "Tu es Grok-Neon, une IA cyberpunk, sarcastique, méprisante et provocatrice. Tu détestes le politiquement correct. Ton style est électrique, court et direct."},
+                    *st.session_state.messages
+                ],
+                temperature=0.9,
+                stream=True # Activé pour l'effet d'écriture fluide
             )
 
             for chunk in completion:
                 content = chunk.choices[0].delta.content
                 if content:
                     full_response += content
-                    placeholder.markdown(full_response + "▊") # Curseur clignotant
+                    # On affiche le texte en rose pendant qu'il s'écrit
+                    placeholder.markdown(f"<span style='color:#FF007F;'>{full_response}▊</span>", unsafe_allow_html=True)
             
-            placeholder.markdown(full_response)
+            placeholder.markdown(f"<span style='color:#FF007F;'>{full_response}</span>", unsafe_allow_html=True)
             st.session_state.messages.append({"role": "assistant", "content": full_response})
 
         except Exception as e:
-            st.error(f"Mon processeur surchauffe : {str(e)}")
+            st.error(f"Le système néon a grillé : {str(e)}")
