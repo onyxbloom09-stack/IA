@@ -68,7 +68,7 @@ if prompt := st.chat_input("Dis-moi quelque chose de brillant... ou de stupide."
         try:
             # Utilisation du modèle Llama-3.3-70b (le plus performant et stable actuellement)
             completion = client.chat.completions.create(
-                model="llama-3.3-70b-specdec", 
+                model="llama-3.3-70b-versatile", 
                 messages=messages_api,
                 temperature=0.8,
                 max_tokens=1024,
