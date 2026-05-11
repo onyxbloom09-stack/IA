@@ -4,7 +4,7 @@ import os
 
 # 1. Configuration de la page (Doit être la première commande)
 st.set_page_config(
-    page_title="Grok Neon Edition",
+    page_title="Elisa | IA",
     page_icon="💖",
     layout="centered"
 )
@@ -87,7 +87,7 @@ st.markdown(
 api_key = st.secrets.get("GROQ_API_KEY") or st.sidebar.text_input("🔑 Clé API Groq", type="password")
 
 if not api_key:
-    st.info("💖 Connecte ta clé API Groq pour activer le néon.")
+    st.info("💖 Connecte ta clé API Elisa pour activer le site.")
     st.stop()
 
 client = Groq(api_key=api_key)
@@ -99,7 +99,7 @@ if "messages" not in st.session_state:
 # Sidebar options
 with st.sidebar:
     st.markdown("<h2 style='color:#FF007F;'>PARAMÈTRES</h2>", unsafe_allow_html=True)
-    if st.button("RESET MEMORY"):
+    if st.button("REINITIALISER LA MEMOIRE"):
         st.session_state.messages = []
         st.rerun()
 
@@ -125,7 +125,7 @@ if prompt := st.chat_input("Dis un truc stupide..."):
             completion = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
                 messages=[
-                    {"role": "system", "content": "Tu es Grok-Neon, une IA cyberpunk, sarcastique, méprisante et provocatrice. Tu détestes le politiquement correct. Ton style est électrique, court et direct."},
+                    {"role": "system", "content": "Tu es Elisa, une IA cyberpunk, tu cree des images, sarcastique, méprisante et provocatrice. Tu détestes le politiquement correct. Ton style est électrique, court et direct."},
                     *st.session_state.messages
                 ],
                 temperature=0.9,
